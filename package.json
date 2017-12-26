@@ -1,0 +1,37 @@
+{
+  "name": "etxt-api",
+  "version": "1.0.0",
+  "description": "etxt.ru simple api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sdrobov/etxt-api.git"
+  },
+  "keywords": [
+    "etxt.ru",
+    "api",
+    "seo"
+  ],
+  "author": "Sergey Drobov <serch.m@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sdrobov/etxt-api/issues"
+  },
+  "homepage": "https://github.com/sdrobov/etxt-api#readme",
+  "devDependencies": {
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1"
+  },
+  "dependencies": {
+    "@types/node": "^8.5.2",
+    "@types/request-promise": "^4.1.39",
+    "request-promise": "^4.2.2",
+    "typescript": "^2.6.2"
+  }
+}
