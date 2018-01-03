@@ -1,6 +1,5 @@
-import * as Promise from "bluebird";
 import * as crypto from "crypto";
-import * as request from "request-promise";
+import * as request from "request-promise-native";
 
 export interface IConfig {
     apiUrl?: string;
@@ -24,13 +23,13 @@ export enum ESaveTaskParamsPriceType {
     PerTask = 2,
 }
 
-export enum ESaveTaskParamsTaskVisibility {
+export enum ETaskOrderTargetVisibility {
     All = 1,
     Whitelist = 2,
     Individual = 3,
 }
 
-export interface ISaveTaskParams {
+export interface ITaskOrder {
     id?: number;
     public?: EBool;
     title: string;
@@ -54,15 +53,68 @@ export interface ISaveTaskParams {
     multitask?: EBool;
     multicount?: number;
     id_folder?: number;
-    target_task?: ESaveTaskParamsTaskVisibility;
+    target_task?: ETaskOrderTargetVisibility;
     id_target?: number;
     keywords?: string;
     language_from?: number;
     language_to?: number;
+}
+
+export interface ISaveTaskParams extends ITaskOrder {
     bwgroup_send?: EBool;
 }
 
-export default class EtxtApi {
+export enum ETaskOrderStatus {
+    Waiting = 1,
+    InProgress = 2,
+    Review = 3,
+    Done = 4,
+    Overdue = 5,
+}
+
+export enum EListTasksParamsFilter {
+    None = 0,
+    OverdueInProgress = 10,
+}
+
+export interface IListTasksParams {
+    count?: number;
+    from?: number;
+    id?: number;
+    id_user?: number;
+    id_folder?: number;
+    status?: ETaskOrderStatus;
+    filter?: EListTasksParamsFilter;
+    target?: ETaskOrderTargetVisibility;
+    only_id?: EBool;
+}
+
+export enum ETaskOrderType {
+    Copyrighting = 1,
+    Rewrighting = 2,
+    Translation = 3,
+    SEO = 4,
+}
+
+export enum ETaskOrderLevel {
+    Any = 0,
+    Beginner = 1,
+    Medium = 2,
+    High = 3,
+}
+
+export interface IListTasksResultItem extends ITaskOrder {
+    id_user: number;
+    date: number;
+    end_date: number;
+    id_type: ETaskOrderType;
+    id_level: ETaskOrderLevel;
+    status: ETaskOrderStatus;
+    quick: EBool;
+    target: ETaskOrderTargetVisibility;
+}
+
+export class EtxtApi {
     private apiUrl = "https://www.etxt.ru/api/json/";
     private pass: string;
     private token: string;
@@ -79,9 +131,13 @@ export default class EtxtApi {
     public saveTask(params: ISaveTaskParams): Promise<ISaveTaskResult> {
         const methodName = "tasks.saveTask";
 
-        return request.post(this.getRequestUrl(methodName), { body: params }).then((response: ISaveTaskResult) => {
-            return Promise.resolve(response);
-        });
+        return request.post(this.getRequestUrl(methodName), { body: params });
+    }
+
+    public listTasks(params?: IListTasksParams): Promise<IListTasksResultItem[]> {
+        const methodName = "tasks.listTasks";
+
+        return request.post(this.getRequestUrl(methodName), { body: params });
     }
 
     protected getSignature(method: string): string {

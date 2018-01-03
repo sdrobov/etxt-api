@@ -3,9 +3,13 @@
     "extends": [
         "tslint:recommended"
     ],
-    "jsRules": {},
+    "jsRules": {
+        "indent": [true, "spaces", 2],
+        "quotemark": [true, "single", "avoid-escape"]
+    },
     "rules": {
-        "arrow-parens": false
+        "arrow-parens": false,
+        "trailing-comma": false
     },
     "rulesDirectory": []
 }
