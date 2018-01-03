@@ -115,7 +115,7 @@ export interface IListTasksResultItem extends ITaskOrder {
 }
 
 export class EtxtApi {
-    private apiUrl = "https://www.etxt.ru/api/json/";
+    private apiUrl = "https://www.etxt.biz/api/json/";
     private pass: string;
     private token: string;
 
@@ -131,27 +131,41 @@ export class EtxtApi {
     public saveTask(params: ISaveTaskParams): Promise<ISaveTaskResult> {
         const methodName = "tasks.saveTask";
 
-        return request.post(this.getRequestUrl(methodName), { body: params });
+        return request.post(this.getRequestUrl(methodName, params), { body: params });
     }
 
     public listTasks(params?: IListTasksParams): Promise<IListTasksResultItem[]> {
         const methodName = "tasks.listTasks";
 
-        return request.post(this.getRequestUrl(methodName), { body: params });
+        return request.post(this.getRequestUrl(methodName, params), { body: params });
     }
 
-    protected getSignature(method: string): string {
+    protected getSignature(method: string, params?: {}): string {
         const hash1 = crypto.createHash("md5");
         const hash2 = crypto.createHash("md5");
+        const passHash = hash2.update(this.pass + "api-pass").digest("hex");
 
-        return hash1.update(
-            `method=${method}token=${this.token}`
-            + hash2.update(this.pass + "api-pass").digest("hex")
-        ).digest("hex");
+        const signatureParams = new Map();
+        signatureParams.set("method", method);
+        signatureParams.set("token", this.token);
+
+        if (params) {
+            Object.keys(params).forEach(key => {
+                signatureParams.set(key, params[key]);
+            });
+        }
+
+        let concatenatedParams: string = "";
+        const sortedSignatureParams = new Map([...signatureParams.entries()].sort());
+        sortedSignatureParams.forEach((value, key) => {
+            concatenatedParams += `${key}=${value}`;
+        });
+
+        return hash1.update(concatenatedParams + passHash).digest("hex");
     }
 
-    protected getRequestUrl(method: string): string {
-        const signature = this.getSignature(method);
+    protected getRequestUrl(method: string, params?: {}): string {
+        const signature = this.getSignature(method, params);
         return this.apiUrl + `?token=${this.token}&method=${method}&sign=${signature}`;
     }
 }
