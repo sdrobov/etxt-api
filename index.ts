@@ -1,4 +1,5 @@
 import * as crypto from "crypto";
+import * as qs from "querystring";
 import * as request from "request-promise-native";
 
 export interface IConfig {
@@ -129,15 +130,15 @@ export class EtxtApi {
     }
 
     public saveTask(params: ISaveTaskParams): Promise<ISaveTaskResult> {
-        const methodName = "tasks.saveTask";
-
-        return request.post(this.getRequestUrl(methodName, params), { body: params });
+        return this.query<ISaveTaskResult>("tasks.saveTask", params);
     }
 
     public listTasks(params?: IListTasksParams): Promise<IListTasksResultItem[]> {
-        const methodName = "tasks.listTasks";
+        return this.query<IListTasksResultItem[]>("tasks.listTasks", params);
+    }
 
-        return request.post(this.getRequestUrl(methodName, params), { body: params });
+    protected query<T>(methodName: string, params?: {}): Promise<T> {
+        return request.post(this.getRequestUrl(methodName, params), { body: qs.stringify(params) });
     }
 
     protected getSignature(method: string, params?: {}): string {
@@ -145,23 +146,7 @@ export class EtxtApi {
         const hash2 = crypto.createHash("md5");
         const passHash = hash2.update(this.pass + "api-pass").digest("hex");
 
-        const signatureParams = new Map();
-        signatureParams.set("method", method);
-        signatureParams.set("token", this.token);
-
-        if (params) {
-            Object.keys(params).forEach(key => {
-                signatureParams.set(key, params[key]);
-            });
-        }
-
-        let concatenatedParams: string = "";
-        const sortedSignatureParams = new Map([...signatureParams.entries()].sort());
-        sortedSignatureParams.forEach((value, key) => {
-            concatenatedParams += `${key}=${value}`;
-        });
-
-        return hash1.update(concatenatedParams + passHash).digest("hex");
+        return hash1.update(`method=${method}token=${this.token}` + passHash).digest("hex");
     }
 
     protected getRequestUrl(method: string, params?: {}): string {

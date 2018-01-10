@@ -4,6 +4,7 @@
   "description": "etxt.ru simple api",
   "main": "index.js",
   "scripts": {
+    "pretest": "tsc -p . && [ -f test/.env ]",
     "test": "mocha -c --full-trace --exit --timeout 999999"
   },
   "repository": {
