@@ -1,5 +1,4 @@
 import * as crypto from "crypto";
-import * as qs from "querystring";
 import * as request from "request-promise-native";
 
 export interface IConfig {
@@ -9,52 +8,35 @@ export interface IConfig {
 }
 
 export interface ISaveTaskResult {
-    taskId?: number;
-    noUtarget?: string;
-    noWork?: string;
-}
-
-export enum EBool {
-    No = 0,
-    Yes = 1,
-}
-
-export enum ESaveTaskParamsPriceType {
-    Per1000Signs = 1,
-    PerTask = 2,
-}
-
-export enum ETaskOrderTargetVisibility {
-    All = 1,
-    Whitelist = 2,
-    Individual = 3,
+    id_task?: number;
+    error?: "no_utarget" | "no_uwork" | "no_params";
 }
 
 export interface ITaskOrder {
     id?: number;
-    public?: EBool;
+    public?: 0 | 1;
     title: string;
     description?: string;
     text?: string;
     price: number;
-    price_type?: ESaveTaskParamsPriceType;
+    price_type?: 1 | 2;
     uniq?: number;
-    whitespaces?: EBool;
-    only_stars?: EBool;
+    whitespaces?: 0 | 1;
+    only_stars?: 0 | 1;
     size?: number;
-    checksize?: EBool;
+    checksize?: 0 | 1;
     deadline?: string;
     timeline?: string;
-    auto_work?: EBool;
+    auto_work?: 0 | 1;
     auto_rate?: number;
     auto_reports?: number;
     auto_reports_n?: number;
     auto_level?: number;
     id_category: number;
-    multitask?: EBool;
+    multitask?: 0 | 1;
     multicount?: number;
     id_folder?: number;
-    target_task?: ETaskOrderTargetVisibility;
+    target_task?: 1 | 2 | 3;
     id_target?: number;
     keywords?: string;
     language_from?: number;
@@ -62,20 +44,7 @@ export interface ITaskOrder {
 }
 
 export interface ISaveTaskParams extends ITaskOrder {
-    bwgroup_send?: EBool;
-}
-
-export enum ETaskOrderStatus {
-    Waiting = 1,
-    InProgress = 2,
-    Review = 3,
-    Done = 4,
-    Overdue = 5,
-}
-
-export enum EListTasksParamsFilter {
-    None = 0,
-    OverdueInProgress = 10,
+    bwgroup_send?: 0 | 1;
 }
 
 export interface IListTasksParams {
@@ -84,35 +53,28 @@ export interface IListTasksParams {
     id?: number;
     id_user?: number;
     id_folder?: number;
-    status?: ETaskOrderStatus;
-    filter?: EListTasksParamsFilter;
-    target?: ETaskOrderTargetVisibility;
-    only_id?: EBool;
-}
-
-export enum ETaskOrderType {
-    Copyrighting = 1,
-    Rewrighting = 2,
-    Translation = 3,
-    SEO = 4,
-}
-
-export enum ETaskOrderLevel {
-    Any = 0,
-    Beginner = 1,
-    Medium = 2,
-    High = 3,
+    status?: 1 | 2 | 3 | 4 | 5;
+    filter?: 0 | 10;
+    target?: 1 | 2 | 3;
+    only_id?: 0 | 1;
 }
 
 export interface IListTasksResultItem extends ITaskOrder {
     id_user: number;
     date: number;
     end_date: number;
-    id_type: ETaskOrderType;
-    id_level: ETaskOrderLevel;
-    status: ETaskOrderStatus;
-    quick: EBool;
-    target: ETaskOrderTargetVisibility;
+    id_type: 1 | 2 | 3 | 4;
+    id_level: 0 | 1 | 2 | 3;
+    status: 1 | 2 | 3 | 4 | 5;
+    quick: 0 | 1;
+    target: 1 | 2 | 3;
+}
+
+export interface IListCategoriesResult {
+    id_category: number;
+    id_parent: number;
+    name: string;
+    keyword: string;
 }
 
 export class EtxtApi {
@@ -129,6 +91,10 @@ export class EtxtApi {
         }
     }
 
+    public listCategories(): Promise<IListCategoriesResult[]> {
+        return this.query<IListCategoriesResult[]>("categories.listCategories");
+    }
+
     public saveTask(params: ISaveTaskParams): Promise<ISaveTaskResult> {
         return this.query<ISaveTaskResult>("tasks.saveTask", params);
     }
@@ -138,10 +104,10 @@ export class EtxtApi {
     }
 
     protected query<T>(methodName: string, params?: {}): Promise<T> {
-        return request.post(this.getRequestUrl(methodName, params), { body: qs.stringify(params) });
+        return request.post(this.getRequestUrl(methodName), { form: params });
     }
 
-    protected getSignature(method: string, params?: {}): string {
+    protected getSignature(method: string): string {
         const hash1 = crypto.createHash("md5");
         const hash2 = crypto.createHash("md5");
         const passHash = hash2.update(this.pass + "api-pass").digest("hex");
@@ -149,8 +115,8 @@ export class EtxtApi {
         return hash1.update(`method=${method}token=${this.token}` + passHash).digest("hex");
     }
 
-    protected getRequestUrl(method: string, params?: {}): string {
-        const signature = this.getSignature(method, params);
+    protected getRequestUrl(method: string): string {
+        const signature = this.getSignature(method);
         return this.apiUrl + `?token=${this.token}&method=${method}&sign=${signature}`;
     }
 }
