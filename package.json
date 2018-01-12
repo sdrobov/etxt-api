@@ -4,8 +4,10 @@
   "description": "etxt.ru simple api",
   "main": "index.js",
   "scripts": {
+    "tsc": "tsc",
     "pretest": "tsc -p . && [ -f test/.env ]",
-    "test": "mocha -c --full-trace --exit --timeout 999999"
+    "test": "mocha -c --full-trace --exit --timeout 999999",
+    "install": "tsc -p ."
   },
   "repository": {
     "type": "git",
