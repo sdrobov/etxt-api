@@ -23,7 +23,6 @@ describe('categories', () => {
       api.listCategories()
         .then(categories => {
           checkSaneResult(categories);
-          categories = JSON.parse(categories);
           done();
         }).catch(err => {
           done(err);
@@ -39,9 +38,8 @@ describe('tasks', () => {
         .then(tasks => {
           checkSaneResult(tasks);
 
-          tasks = JSON.parse(tasks);
-          Object.keys(tasks).forEach(idx => {
-            taskIds.push(parseInt(tasks[idx].id));
+          tasks.forEach(task => {
+            taskIds.push(parseInt(task.id));
           });
 
           done();
@@ -67,7 +65,6 @@ describe('tasks', () => {
       })
         .then(task => {
           checkSaneResult(task);
-          task = JSON.parse(task);
           done();
         })
         .catch(err => {
@@ -81,7 +78,6 @@ describe('tasks', () => {
       api.getTaskResult({id: taskIds})
         .then(result => {
           checkSaneResult(result);
-          result = JSON.parse(result);
           done();
         }).catch(err => {
           done(err);

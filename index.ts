@@ -24,22 +24,74 @@ export class EtxtApi {
     }
 
     public listCategories(): Promise<IListCategoriesResult[]> {
-        return this.query<IListCategoriesResult[]>("categories.listCategories");
+        return this.query("categories.listCategories")
+            .then((result: string) => {
+                const categories: IListCategoriesResult[] = [];
+                try {
+                    result = JSON.parse(result);
+                } catch (e) {
+                    return Promise.reject(`cant parse result: ${result}`);
+                }
+
+                Object.keys(result).forEach(idx => {
+                    categories.push(result[idx]);
+                });
+
+                return Promise.resolve(categories);
+            });
     }
 
     public saveTask(params: ISaveTaskParams): Promise<ISaveTaskResult> {
-        return this.query<ISaveTaskResult>("tasks.saveTask", params);
+        return this.query("tasks.saveTask", params)
+            .then((result: string) => {
+                let parsedResult: ISaveTaskResult = {};
+                try {
+                    parsedResult = JSON.parse(result) as ISaveTaskResult;
+                } catch (e) {
+                    return Promise.reject(`cant parse result: ${result}`);
+                }
+
+                return Promise.resolve(parsedResult);
+            });
     }
 
     public listTasks(params?: IListTasksParams): Promise<IListTasksResultItem[]> {
-        return this.query<IListTasksResultItem[]>("tasks.listTasks", params);
+        return this.query("tasks.listTasks", params)
+        .then((result: string) => {
+            const tasks: IListTasksResultItem[] = [];
+            try {
+                result = JSON.parse(result);
+            } catch (e) {
+                return Promise.reject(`cant parse result: ${result}`);
+            }
+
+            Object.keys(result).forEach(idx => {
+                tasks.push(result[idx]);
+            });
+
+            return Promise.resolve(tasks);
+        });
     }
 
     public getTaskResult(params: IGetTaskResultParams): Promise<IGetTaskResultResult[]> {
-        return this.query<IGetTaskResultResult[]>("tasks.getResults", params);
+        return this.query("tasks.getResults", params)
+        .then((result: string) => {
+            const taskResults: IGetTaskResultResult[] = [];
+            try {
+                result = JSON.parse(result);
+            } catch (e) {
+                return Promise.reject(`cant parse result: ${result}`);
+            }
+
+            Object.keys(result).forEach(idx => {
+                taskResults.push(result[idx]);
+            });
+
+            return Promise.resolve(taskResults);
+        });
     }
 
-    protected query<T>(methodName: string, params?: {}): Promise<T> {
+    protected query(methodName: string, params?: {}): Promise<any> {
         return request.post(this.getRequestUrl(methodName), { form: params });
     }
 
