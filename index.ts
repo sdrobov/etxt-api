@@ -57,38 +57,38 @@ export class EtxtApi {
 
     public listTasks(params?: IListTasksParams): Promise<IListTasksResultItem[]> {
         return this.query("tasks.listTasks", params)
-        .then((result: string) => {
-            const tasks: IListTasksResultItem[] = [];
-            try {
-                result = JSON.parse(result);
-            } catch (e) {
-                return Promise.reject(`cant parse result: ${result}`);
-            }
+            .then((result: string) => {
+                const tasks: IListTasksResultItem[] = [];
+                try {
+                    result = JSON.parse(result);
+                } catch (e) {
+                    return Promise.reject(`cant parse result: ${result}`);
+                }
 
-            Object.keys(result).forEach(idx => {
-                tasks.push(result[idx]);
+                Object.keys(result).forEach(idx => {
+                    tasks.push(result[idx]);
+                });
+
+                return Promise.resolve(tasks);
             });
-
-            return Promise.resolve(tasks);
-        });
     }
 
     public getTaskResult(params: IGetTaskResultParams): Promise<IGetTaskResultResult[]> {
         return this.query("tasks.getResults", params)
-        .then((result: string) => {
-            const taskResults: IGetTaskResultResult[] = [];
-            try {
-                result = JSON.parse(result);
-            } catch (e) {
-                return Promise.reject(`cant parse result: ${result}`);
-            }
+            .then((result: string) => {
+                const taskResults: IGetTaskResultResult[] = [];
+                try {
+                    result = JSON.parse(result);
+                } catch (e) {
+                    return Promise.reject(`cant parse result: ${result}`);
+                }
 
-            Object.keys(result).forEach(idx => {
-                taskResults.push(result[idx]);
+                Object.keys(result).forEach(idx => {
+                    taskResults.push(result[idx]);
+                });
+
+                return Promise.resolve(taskResults);
             });
-
-            return Promise.resolve(taskResults);
-        });
     }
 
     protected query(methodName: string, params?: {}): Promise<any> {
@@ -108,5 +108,3 @@ export class EtxtApi {
         return this.apiUrl + `?token=${this.token}&method=${method}&sign=${signature}`;
     }
 }
-
-module.exports = EtxtApi;

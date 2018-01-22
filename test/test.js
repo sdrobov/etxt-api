@@ -3,7 +3,7 @@ const path = require('path');
 require('dotenv').config({path: path.resolve(__dirname, '.env')});
 const describe = require('mocha').describe;
 const it = require('mocha').it;
-const EtxtApi = require('../index');
+const EtxtApi = require('../index').EtxtApi;
 const chai = require('chai');
 const moment = require('moment');
 
